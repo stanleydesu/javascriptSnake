@@ -13,6 +13,7 @@
 		this.direction = direction;
 		this.length = 15;
 		this.speed = this.length + 1;
+		this.moveQueue = [];
 		this.changeDirection = function(direction) {
 			const opposites = {
 				up: 'down',
@@ -20,8 +21,9 @@
 				right: 'left',
 				down: 'up'
 			};
+			// prevent snake from going the opposite direction
 			if (this.direction !== opposites[direction]) {
-				this.direction = direction;
+				this.moveQueue.unshift(direction);
 			}
 		};
 		this.move = {
@@ -53,19 +55,20 @@
 
 	const snake = new Snake(Math.floor(Math.random() * innerWidth), Math.floor(Math.random() * innerHeight), '');
 
-	window.addEventListener('keypress', function(e) {
+	window.addEventListener('keydown', function(e) {
 		let key = String.fromCharCode(e.which);
+		console.log(key);
 		switch(key) {
-			case 'w':
+			case 'W':
 				snake.changeDirection('up');
 				break;
-			case 'a':
+			case 'A':
 				snake.changeDirection('left');
 				break;
-			case 's':
+			case 'S':
 				snake.changeDirection('down');
 				break;
-			case 'd':
+			case 'D':
 				snake.changeDirection('right');
 				break;
 			default:
@@ -75,6 +78,7 @@
 
 	setInterval(function() {
 		c.clearRect(0, 0, innerWidth, innerHeight);
+		snake.direction = snake.moveQueue.pop() || snake.direction;
 		snake.update();
-	}, 100);
+	}, 80);
 }());
