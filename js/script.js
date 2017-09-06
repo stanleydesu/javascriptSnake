@@ -13,6 +13,17 @@
 		this.direction = direction;
 		this.length = 15;
 		this.speed = this.length + 1;
+		this.changeDirection = function(direction) {
+			const opposites = {
+				up: 'down',
+				left: 'right',
+				right: 'left',
+				down: 'up'
+			};
+			if (this.direction !== opposites[direction]) {
+				this.direction = direction;
+			}
+		};
 		this.move = {
 			up: () => {
 				this.y -= this.speed;
@@ -46,16 +57,16 @@
 		let key = String.fromCharCode(e.which);
 		switch(key) {
 			case 'w':
-				snake.direction = 'up';
+				snake.changeDirection('up');
 				break;
 			case 'a':
-				snake.direction = 'left';
+				snake.changeDirection('left');
 				break;
 			case 's':
-				snake.direction = 'down';
+				snake.changeDirection('down');
 				break;
 			case 'd':
-				snake.direction = 'right';
+				snake.changeDirection('right');
 				break;
 			default:
 				break;
@@ -65,5 +76,5 @@
 	setInterval(function() {
 		c.clearRect(0, 0, innerWidth, innerHeight);
 		snake.update();
-	}, 60);
+	}, 100);
 }());
