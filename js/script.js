@@ -7,6 +7,9 @@
 	canvas.width = innerWidth;
 	canvas.height = innerHeight;
 
+	let timer,
+		isPaused = false;
+
 	function Snake(x, y, direction) {
 		this.x = x;
 		this.y = y;
@@ -55,6 +58,27 @@
 		};
 	}
 
+	function togglePause() {
+		isPaused ? play() : pause();
+	}
+
+	function play() {
+		// update the game every 80 milliseconds
+		timer = setInterval(function() {
+			// clear the canvas
+			c.clearRect(0, 0, innerWidth, innerHeight);
+			// set snake's direction to the least recent move
+			snake.direction = snake.moveQueue.pop() || snake.direction;
+			snake.update();
+		}, 50);
+		isPaused = false;
+	}
+
+	function pause() {
+		clearInterval(timer);
+		isPaused = true;
+	}
+
 	const snake = new Snake(Math.floor(Math.random() * innerWidth), Math.floor(Math.random() * innerHeight), '');
 
 	window.addEventListener('keydown', function(e) {
@@ -76,17 +100,13 @@
 			case 68:
 				snake.changeDirection('right');
 				break;
+			case 32:
+				togglePause();
+				break;
 			default:
 				break;
 		}
 	});
 
-	// update the game every 80 milliseconds
-	setInterval(function() {
-		// clear the canvas
-		c.clearRect(0, 0, innerWidth, innerHeight);
-		// set snake's direction to the least recent move
-		snake.direction = snake.moveQueue.pop() || snake.direction;
-		snake.update();
-	}, 50);
+	play();
 }());
