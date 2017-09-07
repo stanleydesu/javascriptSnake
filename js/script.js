@@ -3,10 +3,12 @@
 (function() {
 	const canvas = document.getElementById('canvas'),
 		  c = canvas.getContext('2d'),
-		  blockSize = 15;
+		  blockSize = 15,
+		  cw = 600,
+		  ch = 300;
 
-	canvas.width = innerWidth;
-	canvas.height = innerHeight;
+	canvas.width = cw;
+	canvas.height = ch;
 
 	let timer,
 		isPaused = false;
@@ -16,7 +18,7 @@
 		this.y = y;
 		this.direction = direction;
 		this.length = blockSize;
-		this.speed = this.length + 1;
+		this.speed = blockSize;
 		this.moveQueue = [];
 		this.segments = [{x: this.x, y: this.y}];
 		this.changeDirection = function(direction) {
@@ -27,7 +29,7 @@
 				down: 'up'
 			};
 			// prevent snake from going the opposite direction
-			// or redundant/same moves to the movequeue
+			// or adding current direction to movequeue
 			if (this.direction !== opposites[direction] && direction !== this.moveQueue[0]) {
 				this.moveQueue.unshift(direction);
 			}
@@ -53,13 +55,14 @@
 		};
 		this.draw = function() {
 			c.beginPath();
-			c.fillStyle = 'white';
+			c.strokeStyle = '#fff';
+			c.strokeRect(this.x, this.y, this.length, this.length);
+			c.fillStyle = '#fff';
 			c.fillRect(this.x, this.y, this.length, this.length);
 		};
 	}
 
-	const snake = new Snake(Math.floor(Math.random() * (innerWidth / blockSize)) * blockSize, 
-		  				    Math.floor(Math.random() * (innerHeight / blockSize)) * blockSize, '');
+	const snake = new Snake(0, 0, '');
 
 	window.addEventListener('keydown', function(e) {
 		let key = e.which || e.keyCode;
@@ -101,7 +104,7 @@
 			snake.direction = snake.moveQueue.pop() || snake.direction;
 			// move and draw the snake
 			snake.update();
-		}, 50);
+		}, 80);
 		isPaused = false;
 	}
 
