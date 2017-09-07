@@ -2,7 +2,8 @@
 
 (function() {
 	const canvas = document.getElementById('canvas'),
-		  c = canvas.getContext('2d');
+		  c = canvas.getContext('2d'),
+		  blockSize = 15;
 
 	canvas.width = innerWidth;
 	canvas.height = innerHeight;
@@ -14,7 +15,7 @@
 		this.x = x;
 		this.y = y;
 		this.direction = direction;
-		this.length = 15;
+		this.length = blockSize;
 		this.speed = this.length + 1;
 		this.moveQueue = [];
 		this.segments = [{x: this.x, y: this.y}];
@@ -52,34 +53,13 @@
 		};
 		this.draw = function() {
 			c.beginPath();
-			c.fillRect(this.x, this.y, this.length, this.length);
 			c.fillStyle = 'white';
-			c.fill();
+			c.fillRect(this.x, this.y, this.length, this.length);
 		};
 	}
 
-	function togglePause() {
-		isPaused ? play() : pause();
-	}
-
-	function play() {
-		// update the game every 80 milliseconds
-		timer = setInterval(function() {
-			// clear the canvas
-			c.clearRect(0, 0, innerWidth, innerHeight);
-			// set snake's direction to the least recent move
-			snake.direction = snake.moveQueue.pop() || snake.direction;
-			snake.update();
-		}, 50);
-		isPaused = false;
-	}
-
-	function pause() {
-		clearInterval(timer);
-		isPaused = true;
-	}
-
-	const snake = new Snake(Math.floor(Math.random() * innerWidth), Math.floor(Math.random() * innerHeight), '');
+	const snake = new Snake(Math.floor(Math.random() * (innerWidth / blockSize)) * blockSize, 
+		  				    Math.floor(Math.random() * (innerHeight / blockSize)) * blockSize, '');
 
 	window.addEventListener('keydown', function(e) {
 		let key = e.which || e.keyCode;
@@ -107,6 +87,28 @@
 				break;
 		}
 	});
+
+	function togglePause() {
+		isPaused ? play() : pause();
+	}
+
+	function play() {
+		// update the game every 80 milliseconds
+		timer = setInterval(function() {
+			// clear the canvas
+			c.clearRect(0, 0, innerWidth, innerHeight);
+			// set snake's direction to the least recent move
+			snake.direction = snake.moveQueue.pop() || snake.direction;
+			// move and draw the snake
+			snake.update();
+		}, 50);
+		isPaused = false;
+	}
+
+	function pause() {
+		clearInterval(timer);
+		isPaused = true;
+	}
 
 	play();
 }());
