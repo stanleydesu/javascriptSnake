@@ -7,6 +7,8 @@
 		  cw = 900,
 		  ch = 450;
 
+	let snake, food;
+
 	canvas.width = cw;
 	canvas.height = ch;
 
@@ -113,10 +115,12 @@
 		return pos1.x === pos2.x && pos1.y === pos2.y;
 	}
 
-	const snake = new Snake(Math.floor(Math.random() * (cw / blockSize)) * blockSize, 
-		  				  Math.floor(Math.random() * (ch / blockSize)) * blockSize, ''),
-		  food = new Food(Math.floor(Math.random() * (cw / blockSize)) * blockSize, 
-		  				  Math.floor(Math.random() * (ch / blockSize)) * blockSize);
+	function init() {
+		snake = new Snake(Math.floor(Math.random() * (cw / blockSize)) * blockSize, 
+		  				  Math.floor(Math.random() * (ch / blockSize)) * blockSize, '');
+		food = new Food(Math.floor(Math.random() * (cw / blockSize)) * blockSize, 
+		  				Math.floor(Math.random() * (ch / blockSize)) * blockSize);
+	}
 
 	window.addEventListener('keydown', function(e) {
 		let key = e.which || e.keyCode;
@@ -160,12 +164,27 @@
 			food.draw();
 			// move and draw the snake
 			snake.update();
+			let head = snake.getHead();
 			// if snake has eaten food
-			if (inEqualPositions(snake.getHead(), food.getPos())) {
+			if (inEqualPositions(head, food.getPos())) {
 				// change position of food
 				food.update();
 				// increase length of snake
 				snake.growth = 5;
+			}
+			// if snake eats itself
+			for (let i = 1, len = snake.segments.length; i < len; ++i) {
+				if (inEqualPositions(head, snake.segments[i])) {
+					alert('You lose xD');
+					// restart game
+					init();
+				}
+			}
+			// if snake is outside wall
+			if (head.x < 0 || head.x > cw || head.y < 0 || head.y > ch) {
+				alert('You lose xD');
+				// restart game
+				init();
 			}
 		}, 80);
 		isPaused = false;
@@ -176,5 +195,6 @@
 		isPaused = true;
 	}
 
+	init();
 	play();
 }());
