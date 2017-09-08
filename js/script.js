@@ -78,9 +78,12 @@
 		this.draw = function() {
 			c.beginPath();
 			c.fillStyle = '#fff';
+			c.strokeStyle = '#222';
+			c.lineWidth = '2';
 			for (let i = 0, len = this.segments.length; i < len; ++i) {
 				let segment = this.segments[i];
 				c.fillRect(segment.x, segment.y, this.length, this.length);
+				c.strokeRect(segment.x, segment.y, this.length, this.length);
 			}
 		};
 	}
@@ -99,7 +102,10 @@
 		this.draw = function() {
 			c.beginPath();
 			c.fillStyle = '#0c8';
+			c.strokeStyle = '#222';
+			c.lineWidth = '2';
 			c.fillRect(this.x, this.y, this.length, this.length);
+			c.strokeRect(this.x, this.y, this.length, this.length);
 		};
 	}
 
