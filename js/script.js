@@ -4,8 +4,8 @@
 	const canvas = document.getElementById('canvas'),
 		  c = canvas.getContext('2d'),
 		  blockSize = 15,
-		  cw = 600,
-		  ch = 300;
+		  cw = 900,
+		  ch = 450;
 
 	canvas.width = cw;
 	canvas.height = ch;
@@ -14,13 +14,18 @@
 		isPaused = false;
 
 	function Snake(x, y, direction) {
-		this.x = x;
-		this.y = y;
 		this.direction = direction;
 		this.length = blockSize;
 		this.speed = blockSize;
 		this.moveQueue = [];
-		this.segments = [{x: this.x, y: this.y}];
+		this.segments = [{x: x, y: y}]; // parts of the snakes
+		this.growth = 0;
+		this.getHead = function() {
+			return this.segments[0];
+		};
+		this.getTail = function() {
+			return this.segments[this.segments.length - 1];
+		};
 		this.changeDirection = function(direction) {
 			const opposites = {
 				up: 'down',
@@ -36,33 +41,76 @@
 		};
 		this.move = {
 			up: () => {
-				this.y -= this.speed;
+				let segment = Object.assign({}, this.getHead());
+				segment.y -= this.speed;
+				this.segments.unshift(segment);
 			},
 			right: () => {
-				this.x += this.speed;
+				let segment = Object.assign({}, this.getHead());
+				segment.x += this.speed;
+				this.segments.unshift(segment);
 			},
 			down: () => {
-				this.y += this.speed;
+				let segment = Object.assign({}, this.getHead());
+				segment.y += this.speed;
+				this.segments.unshift(segment);
 			},
 			left: () => {
-				this.x -= this.speed;
+				let segment = Object.assign({}, this.getHead());
+				segment.x -= this.speed;
+				this.segments.unshift(segment);
 			},
-			'': () => {}
+			'': () => {
+				let segment = Object.assign({}, this.getHead());
+				this.segments.unshift(segment);
+			}
 		};
 		this.update = function() {
 			this.move[this.direction]();
+			// if snake should grow
+			if (this.growth) {
+				--this.growth;
+			} else {
+				this.segments.pop();
+			}	
 			this.draw();
 		};
 		this.draw = function() {
 			c.beginPath();
-			c.strokeStyle = '#fff';
-			c.strokeRect(this.x, this.y, this.length, this.length);
 			c.fillStyle = '#fff';
+			for (let i = 0, len = this.segments.length; i < len; ++i) {
+				let segment = this.segments[i];
+				c.fillRect(segment.x, segment.y, this.length, this.length);
+			}
+		};
+	}
+
+	function Food(x, y) {
+		this.x = x;
+		this.y = y;
+		this.length = blockSize;
+		this.getPos = function() {
+			return {x: this.x, y: this.y};
+		};
+		this.update = function() {
+			this.x = Math.floor(Math.random() * (cw / blockSize)) * blockSize;
+			this.y = Math.floor(Math.random() * (ch / blockSize)) * blockSize;
+		}
+		this.draw = function() {
+			c.beginPath();
+			c.fillStyle = '#0c8';
 			c.fillRect(this.x, this.y, this.length, this.length);
 		};
 	}
 
-	const snake = new Snake(0, 0, '');
+	function inEqualPositions(pos1, pos2) {
+		return pos1.x === pos2.x && pos1.y === pos2.y;
+	}
+
+	const snake = new Snake(Math.floor(Math.random() * (cw / blockSize)) * blockSize, 
+		  				  Math.floor(Math.random() * (ch / blockSize)) * blockSize, ''),
+		  food = new Food(Math.floor(Math.random() * (cw / blockSize)) * blockSize, 
+		  				  Math.floor(Math.random() * (ch / blockSize)) * blockSize);
 
 	window.addEventListener('keydown', function(e) {
 		let key = e.which || e.keyCode;
@@ -102,8 +150,17 @@
 			c.clearRect(0, 0, innerWidth, innerHeight);
 			// set snake's direction to the least recent move
 			snake.direction = snake.moveQueue.pop() || snake.direction;
+			// draw in food
+			food.draw();
 			// move and draw the snake
 			snake.update();
+			// if snake has eaten food
+			if (inEqualPositions(snake.getHead(), food.getPos())) {
+				// change position of food
+				food.update();
+				// increase length of snake
+				snake.growth = 5;
+			}
 		}, 80);
 		isPaused = false;
 	}
