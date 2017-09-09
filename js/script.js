@@ -1,9 +1,9 @@
 "use strict";
 
 (function() {
-	// ===================================================================
-	// ========================= VARIABLES ===============================
-	// ===================================================================
+	// =====================================
+	// ============= VARIABLES =============
+	// =====================================
 	const canvas = document.getElementById('canvas'),
 		  c = canvas.getContext('2d'),
 		  blockSize = 15; // universal side length of a square
@@ -15,116 +15,117 @@
 		ch, // canvas height
 		isPaused = false;
 
-	// ===================================================================
-	// ========================= FUNCTIONS ===============================
-	// ===================================================================
+	// =====================================
+	// ============= FUNCTIONS =============
+	// =====================================
 
 	// snake constructor
-	// snake can move in 4 directions, up, right, down, left
+	// snake can move in 4 directions, up, right, down, left, or be stationary
 	//   1
-	// 4   2
+	// 4 0 2
 	//   3
-	function Snake(x, y, direction) {
-		this.direction = direction;
-		this.length = blockSize;
-		this.speed = blockSize;
-		this.moveQueue = [];
-		this.segments = [{x: x, y: y}]; // parts of the snake
-		this.growth = 0; // number of segments the snake needs to grow
-		this.getHead = function() {
-			return this.segments[0];
-		};
-		this.getTail = function() {
-			return this.segments[this.segments.length - 1];
-		};
-		this.changeDirection = function(direction) {
+	class Snake {
+		constructor(x, y, direction) {
+			this._direction = direction;
+			this._length = blockSize;
+			this._speed = blockSize;
+			this._moveQueue = [];
+			this._segments = [{x: x, y: y}]; // parts of the snake
+			this._growth = 0; // number of segment the snake needs to grow
+			// moves the snake modifying the current head and adding a new head
+			this._move = [
+				// stationary
+				(segment) => {
+					this._segments.unshift(segment);
+				},
+				// up
+				(segment) => {
+					segment.y -= this._speed;
+					this._segments.unshift(segment);
+				},
+				// right
+				(segment) => {
+					segment.x += this._speed;
+					this._segments.unshift(segment);
+				},
+				// down
+				(segment) => {
+					segment.y += this._speed;
+					this._segments.unshift(segment);
+				},
+				// left
+				(segment) => {
+					segment.x -= this._speed;
+					this._segments.unshift(segment);
+				}
+			];
+		}
+		get head() {
+			return this._segments[0];
+		}
+		set direction(direction) {
 			// prevent snake from going opposite direction or adding current direction to movequeue
-			if (!this.direction || (this.direction !== (direction + 2) % 4) && (direction !== this.moveQueue[0])) {
-				this.moveQueue.unshift(direction);
+			if (!this._direction || (this._direction !== (direction + 2) % 4) && (direction !== this._moveQueue[0])) {
+				this._moveQueue.unshift(direction);
 			}
-		};
-		// moves the snake modifying the current head and adding a new head
-		this.move = [
-			// stationary
-			(segment) => {
-				this.segments.unshift(segment);
-			},
-			// up
-			(segment) => {
-				segment.y -= this.speed;
-				this.segments.unshift(segment);
-			},
-			// right
-			(segment) => {
-				segment.x += this.speed;
-				this.segments.unshift(segment);
-			},
-			// down
-			(segment) => {
-				segment.y += this.speed;
-				this.segments.unshift(segment);
-			},
-			// left
-			(segment) => {
-				segment.x -= this.speed;
-				this.segments.unshift(segment);
-			}
-		];
+		}
 		// moves, grows (if required) and draws the snake
-		this.update = function() {
+		update() {
 			// create new head
-			let segment = Object.assign({}, this.getHead());
-			this.move[this.direction](segment);
+			let segment = Object.assign({}, this.head);
+			this._move[this._direction](segment);
 			// if snake should grow, don't remove tail
-			if (this.growth) {
-				--this.growth;
+			if (this._growth) {
+				--this._growth;
 			} else {
 				// remove tail
-				this.segments.pop();
+				this._segments.pop();
 			}
 			this.draw();
-		};
-		this.draw = function() {
+		}
+		draw() {
 			c.beginPath();
 			c.fillStyle = '#fff';
 			c.strokeStyle = '#222';
 			c.lineWidth = '2';
-			for (let i = 0, len = this.segments.length; i < len; ++i) {
-				let segment = this.segments[i];
-				c.fillRect(segment.x, segment.y, this.length, this.length);
-				c.strokeRect(segment.x, segment.y, this.length, this.length);
+			for (let i = 0, len = this._segments.length; i < len; ++i) {
+				let segment = this._segments[i];
+				c.fillRect(segment.x, segment.y, this._length, this._length);
+				c.strokeRect(segment.x, segment.y, this._length, this._length);
 			}
-		};
+		}
 	}
 
 	// food constructor
-	function Food(x, y) {
-		this.x = x;
-		this.y = y;
-		this.length = blockSize;
-		this.getPos = function() {
+	class Food {
+		constructor(x, y) {
+			this.x = x;
+			this.y = y;
+			this.length = blockSize;
+		}
+		get pos() {
 			return {x: this.x, y: this.y};
-		};
-		this.respawn = function() {
+		}
+		respawn() {
 			this.x = Math.floor(Math.random() * (cw / blockSize)) * blockSize;
 			this.y = Math.floor(Math.random() * (ch / blockSize)) * blockSize;
-		};
-		this.draw = function() {
+		}
+		draw() {
 			c.beginPath();
 			c.fillStyle = '#0c8';
 			c.strokeStyle = '#222';
 			c.lineWidth = '2';
 			c.fillRect(this.x, this.y, this.length, this.length);
 			c.strokeRect(this.x, this.y, this.length, this.length);
-		};
+		}
 	}
 
 	// checks if two coordinates are in the same position
 	// if pos2 is an array of coordinates, the function will return true
 	// if any of pos2's items are equal to pos1
-	function inEqualPositions(pos1, pos2) {
+	const inEqualPositions = (pos1, pos2) => {
 		if (Array.isArray(pos2)) {
-			return pos2.some(function(curr) {
+			return pos2.some((curr) => {
 				return inEqualPositions(pos1, curr)
 			});
 		} else {
@@ -133,7 +134,7 @@
 	}
 
 	// resizes canvas dimensions
-	function resize() {
+	const resize = () => {
 		cw = (Math.floor(innerWidth / blockSize) - 5) * blockSize;
 		ch = (Math.floor(innerHeight / blockSize) - 5) * blockSize;
 		canvas.width = cw;
@@ -141,36 +142,36 @@
 	}
 
 	// toggles between play and pause mode
-	function togglePause() {
+	const togglePause = () => {
 		isPaused ? play() : pause();
 	}
 
 	// plays the game and performs checks
-	function play() {
+	const play = () => {
 		// update the game every 80 milliseconds
-		timer = setInterval(function() {
+		timer = setInterval(() => {
 			// clear the canvas
 			c.clearRect(0, 0, innerWidth, innerHeight);
 			// set snake's direction to the least recent move
-			snake.direction = snake.moveQueue.pop() || snake.direction;
+			snake._direction = snake._moveQueue.pop() || snake._direction;
 			// draw in food
 			food.draw();
 			// move and draw the snake
 			snake.update();
-			let head = snake.getHead();
+			let head = snake.head;
 			// if snake has eaten food
-			if (inEqualPositions(head, food.getPos())) {
+			if (inEqualPositions(head, food.pos)) {
 				// spawn food in a snake-free square
 				do {
 					food.respawn();
 				}
-				while (inEqualPositions(food.getPos(), snake.segments));
+				while (inEqualPositions(food.pos, snake._segments));
 				// increase length of snake
-				snake.growth = 5;
+				snake._growth = 5;
 			}
 			// if snake eats itself
-			for (let i = 1, len = snake.segments.length; i < len; ++i) {
-				if (inEqualPositions(head, snake.segments[i])) {
+			for (let i = 1, len = snake._segments.length; i < len; ++i) {
+				if (inEqualPositions(head, snake._segments[i])) {
 					alert('You lose xD');
 					// restart game
 					init();
@@ -187,47 +188,45 @@
 	}
 
 	// pauses game
-	function pause() {
+	const pause = () => {
 		clearInterval(timer);
 		isPaused = true;
 	}
 
-
-	// initialisation function
-	function init() {
+	// initialises game 
+	const init = () => {
 		resize();
 		snake = new Snake(Math.floor(Math.random() * (cw / blockSize)) * blockSize, 
-		  				  Math.floor(Math.random() * (ch / blockSize)) * blockSize, 0);
+									 Math.floor(Math.random() * (ch / blockSize)) * blockSize, 0);
 		food = new Food(Math.floor(Math.random() * (cw / blockSize)) * blockSize, 
-		  				Math.floor(Math.random() * (ch / blockSize)) * blockSize);
+								   Math.floor(Math.random() * (ch / blockSize)) * blockSize);
 		pause(); // reset timer
 		play();
-		
 	}
 
-	// ===================================================================
-	// ========================= EVENT LISTENERS =========================
-	// ===================================================================
+	// =====================================
+	// ========== EVENT LISTENERS ==========
+	// =====================================
 
 	// handle user input for movement
-	window.addEventListener('keydown', function(e) {
+	window.addEventListener('keydown', (e) => {
 		let key = e.which || e.keyCode;
 		switch(key) {
 			case 38:
 			case 87:
-				snake.changeDirection(1);
+				snake.direction = 1;
 				break;
 			case 39:
 			case 68:
-				snake.changeDirection(2);
+				snake.direction = 2;
 				break;
 			case 40:
 			case 83:
-				snake.changeDirection(3);
+				snake.direction = 3;
 				break;
 			case 37:
 			case 65:
-				snake.changeDirection(4);
+				snake.direction = 4;
 				break;
 			case 32:
 				togglePause();
@@ -240,9 +239,9 @@
 	// resize the canvas if the window size changes
 	window.addEventListener('resize', resize);
 
-	// ===================================================================
-	// ========================== RUN THE GAME ===========================
-	// ===================================================================
+	// =====================================
+	// ============= RUN THE GAME ==========
+	// =====================================
 
 	init();
 }());
