@@ -28,6 +28,10 @@
 	}
 
 	// snake constructor
+	// snake can move in 4 directions, up, right, down, left
+	//   1
+	// 4   2
+	//   3
 	function Snake(x, y, direction) {
 		this.direction = direction;
 		this.length = blockSize;
@@ -42,52 +46,48 @@
 			return this.segments[this.segments.length - 1];
 		};
 		this.changeDirection = function(direction) {
-			const opposites = {
-				up: 'down',
-				left: 'right',
-				right: 'left',
-				down: 'up'
-			};
 			// prevent snake from going opposite direction or adding current direction to movequeue
-			if (this.direction !== opposites[direction] && direction !== this.moveQueue[0]) {
+			if ((this.direction !== (direction + 2) % 4) && (direction !== this.moveQueue[0])) {
 				this.moveQueue.unshift(direction);
 			}
 		};
-		// moves the snake by creating a new object equal to the current head
-		// and moving the new object in the current direction
-		this.move = {
-			up: () => {
-				let segment = Object.assign({}, this.getHead());
+		// moves the snake modifying the current head and adding a new head
+		this.move = [
+			// stationary
+			(segment) => {
+				this.segments.unshift(segment);
+			},
+			// up
+			(segment) => {
 				segment.y -= this.speed;
 				this.segments.unshift(segment);
 			},
-			right: () => {
-				let segment = Object.assign({}, this.getHead());
+			// right
+			(segment) => {
 				segment.x += this.speed;
 				this.segments.unshift(segment);
 			},
-			down: () => {
-				let segment = Object.assign({}, this.getHead());
+			// down
+			(segment) => {
 				segment.y += this.speed;
 				this.segments.unshift(segment);
 			},
-			left: () => {
-				let segment = Object.assign({}, this.getHead());
+			// left
+			(segment) => {
 				segment.x -= this.speed;
 				this.segments.unshift(segment);
-			},
-			'': () => {
-				let segment = Object.assign({}, this.getHead());
-				this.segments.unshift(segment);
 			}
-		};
+		];
 		// moves, grows (if required) and draws the snake
 		this.update = function() {
-			this.move[this.direction]();
-			// if snake should grow
+			// create new head
+			let segment = Object.assign({}, this.getHead());
+			this.move[this.direction](segment);
+			// if snake should grow, don't remove tail
 			if (this.growth) {
 				--this.growth;
 			} else {
+				// remove tail
 				this.segments.pop();
 			}
 			this.draw();
@@ -136,7 +136,7 @@
 	function init() {
 		resize();
 		snake = new Snake(Math.floor(Math.random() * (cw / blockSize)) * blockSize, 
-		  				  Math.floor(Math.random() * (ch / blockSize)) * blockSize, '');
+		  				  Math.floor(Math.random() * (ch / blockSize)) * blockSize, 0);
 		food = new Food(Math.floor(Math.random() * (cw / blockSize)) * blockSize, 
 		  				Math.floor(Math.random() * (ch / blockSize)) * blockSize);
 		pause(); // reset timer
@@ -183,7 +183,7 @@
 				// restart game
 				init();
 			}
-		}, 60);
+		}, 80);
 		isPaused = false;
 	}
 
@@ -203,19 +203,19 @@
 		switch(key) {
 			case 38:
 			case 87:
-				snake.changeDirection('up');
-				break;
-			case 37:
-			case 65:
-				snake.changeDirection('left');
-				break;
-			case 40:
-			case 83:
-				snake.changeDirection('down');
+				snake.changeDirection(1);
 				break;
 			case 39:
 			case 68:
-				snake.changeDirection('right');
+				snake.changeDirection(2);
+				break;
+			case 40:
+			case 83:
+				snake.changeDirection(3);
+				break;
+			case 37:
+			case 65:
+				snake.changeDirection(4);
 				break;
 			case 32:
 				togglePause();
