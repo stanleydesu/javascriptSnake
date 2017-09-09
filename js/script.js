@@ -65,7 +65,7 @@
 		}
 		set direction(direction) {
 			// prevent snake from going opposite direction or adding current direction to movequeue
-			if (!this._direction || (this._direction !== (direction + 2) % 4) && (direction !== this._moveQueue[0])) {
+			if (!this._direction || (this._direction !== direction + (direction <= 2 ? 2 : -2)) && (direction !== this._moveQueue[0])) {
 				this._moveQueue.unshift(direction);
 			}
 		}
