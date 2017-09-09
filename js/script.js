@@ -139,6 +139,7 @@
 		  				  Math.floor(Math.random() * (ch / blockSize)) * blockSize, '');
 		food = new Food(Math.floor(Math.random() * (cw / blockSize)) * blockSize, 
 		  				Math.floor(Math.random() * (ch / blockSize)) * blockSize);
+		pause(); // reset timer
 		play();
 		
 	}
