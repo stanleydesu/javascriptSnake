@@ -39,7 +39,7 @@
 		};
 		this.changeDirection = function(direction) {
 			// prevent snake from going opposite direction or adding current direction to movequeue
-			if ((this.direction !== (direction + 2) % 4) && (direction !== this.moveQueue[0])) {
+			if (!this.direction || (this.direction !== (direction + 2) % 4) && (direction !== this.moveQueue[0])) {
 				this.moveQueue.unshift(direction);
 			}
 		};
@@ -120,8 +120,16 @@
 	}
 
 	// checks if two coordinates are in the same position
+	// if pos2 is an array of coordinates, the function will return true
+	// if any of pos2's items are equal to pos1
 	function inEqualPositions(pos1, pos2) {
-		return pos1.x === pos2.x && pos1.y === pos2.y;
+		if (Array.isArray(pos2)) {
+			return pos2.some(function(curr) {
+				return inEqualPositions(pos1, curr)
+			});
+		} else {
+			return pos1.x === pos2.x && pos1.y === pos2.y;
+		}
 	}
 
 	// resizes canvas dimensions
@@ -152,8 +160,11 @@
 			let head = snake.getHead();
 			// if snake has eaten food
 			if (inEqualPositions(head, food.getPos())) {
-				// change position of food
-				food.respawn();
+				// spawn food in a snake-free square
+				do {
+					food.respawn();
+				}
+				while (inEqualPositions(food.getPos(), snake.segments));
 				// increase length of snake
 				snake.growth = 5;
 			}
