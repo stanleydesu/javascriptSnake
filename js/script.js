@@ -178,12 +178,12 @@
 				}
 			}
 			// if snake hits the walls
-			if (head.x < 0 || head.x > cw || head.y < 0 || head.y > ch) {
+			if (head.x < 0 || head.x >= cw || head.y < 0 || head.y >= ch) {
 				alert('You lose xD');
 				// restart game
 				init();
 			}
-		}, 70);
+		}, 60);
 		isPaused = false;
 	}
 
