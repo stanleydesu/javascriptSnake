@@ -19,14 +19,6 @@
 	// ========================= FUNCTIONS ===============================
 	// ===================================================================
 
-	// resizes canvas dimensions
-	function resize() {
-		cw = (Math.floor(innerWidth / blockSize) - 5) * blockSize;
-		ch = (Math.floor(innerHeight / blockSize) - 5) * blockSize;
-		canvas.width = cw;
-		canvas.height = ch;
-	}
-
 	// snake constructor
 	// snake can move in 4 directions, up, right, down, left
 	//   1
@@ -132,16 +124,12 @@
 		return pos1.x === pos2.x && pos1.y === pos2.y;
 	}
 
-	// initialisation function
-	function init() {
-		resize();
-		snake = new Snake(Math.floor(Math.random() * (cw / blockSize)) * blockSize, 
-		  				  Math.floor(Math.random() * (ch / blockSize)) * blockSize, 0);
-		food = new Food(Math.floor(Math.random() * (cw / blockSize)) * blockSize, 
-		  				Math.floor(Math.random() * (ch / blockSize)) * blockSize);
-		pause(); // reset timer
-		play();
-		
+	// resizes canvas dimensions
+	function resize() {
+		cw = (Math.floor(innerWidth / blockSize) - 5) * blockSize;
+		ch = (Math.floor(innerHeight / blockSize) - 5) * blockSize;
+		canvas.width = cw;
+		canvas.height = ch;
 	}
 
 	// toggles between play and pause mode
@@ -191,6 +179,19 @@
 	function pause() {
 		clearInterval(timer);
 		isPaused = true;
+	}
+
+
+	// initialisation function
+	function init() {
+		resize();
+		snake = new Snake(Math.floor(Math.random() * (cw / blockSize)) * blockSize, 
+		  				  Math.floor(Math.random() * (ch / blockSize)) * blockSize, 0);
+		food = new Food(Math.floor(Math.random() * (cw / blockSize)) * blockSize, 
+		  				Math.floor(Math.random() * (ch / blockSize)) * blockSize);
+		pause(); // reset timer
+		play();
+		
 	}
 
 	// ===================================================================
