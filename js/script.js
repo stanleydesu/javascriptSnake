@@ -148,7 +148,7 @@
 	}
 
 	const handleDeath = (score) => {
-		let highscore = localStorage.getItem('highscore'),
+		let highscore = JSON.parse(localStorage.getItem('highscore')),
 			message = 'Your snake died. ';
 		// if there is no highscore or current score is higher than highscore
 		if (!highscore || score > highscore) {
