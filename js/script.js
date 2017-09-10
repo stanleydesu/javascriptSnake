@@ -147,6 +147,19 @@
 		isPaused ? play() : pause();
 	}
 
+	const handleDeath = (score) => {
+		let highscore = localStorage.getItem('highscore'),
+			message = 'Your snake died. ';
+		// if there is no highscore or current score is higher than highscore
+		if (!highscore || score > highscore) {
+			localStorage.setItem('highscore', JSON.stringify(score));
+			message += `New highscore: ${score}`;
+		} else {
+			message += `Score: ${score}. Highscore: ${highscore}`;
+		}
+		alert(message);
+	}
+
 	// plays the game and performs checks
 	const play = () => {
 		// update the game every 80 milliseconds
@@ -173,15 +186,13 @@
 			// if snake eats itself
 			for (let i = 1, len = snake._segments.length; i < len; ++i) {
 				if (inEqualPositions(head, snake._segments[i])) {
-					alert(`Your snake died. Your score: ${snake._segments.length}`);
-					// restart game
+					handleDeath(snake._segments.length);
 					init();
 				}
 			}
 			// if snake hits the walls
 			if (head.x < 0 || head.x >= cw || head.y < 0 || head.y >= ch) {
-				alert(`Your snake died. Your score: ${snake._segments.length}`);
-				// restart game
+				handleDeath(snake._segments.length);
 				init();
 			}
 			// update score
