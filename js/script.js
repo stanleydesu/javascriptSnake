@@ -173,14 +173,14 @@
 			// if snake eats itself
 			for (let i = 1, len = snake._segments.length; i < len; ++i) {
 				if (inEqualPositions(head, snake._segments[i])) {
-					alert('You lose xD');
+					alert(`Your snake died. Your score: ${snake._segments.length}`);
 					// restart game
 					init();
 				}
 			}
 			// if snake hits the walls
 			if (head.x < 0 || head.x >= cw || head.y < 0 || head.y >= ch) {
-				alert('You lose xD');
+				alert(`Your snake died. Your score: ${snake._segments.length}`);
 				// restart game
 				init();
 			}
