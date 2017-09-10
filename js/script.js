@@ -6,6 +6,7 @@
 	// =====================================
 	const canvas = document.getElementById('canvas'),
 		  c = canvas.getContext('2d'),
+		  scoreDiv = document.getElementById('score'),
 		  blockSize = 15; // universal side length of a square
 
 	let snake,
@@ -183,6 +184,8 @@
 				// restart game
 				init();
 			}
+			// update score
+			scoreDiv.textContent = snake._segments.length;
 		}, 80);
 		isPaused = false;
 	}
