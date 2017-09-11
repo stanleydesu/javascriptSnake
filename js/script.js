@@ -117,14 +117,14 @@
 	// if any of pos2's items are equal to pos1
 	const inEqualPositions = (pos1, pos2) => {
 		return Array.isArray(pos2) ? 
-			   pos2.some(curr => inEqualPositions(pos1, curr)) :
-			   (pos1.x === pos2.x && pos1.y === pos2.y);
+			pos2.some(curr => inEqualPositions(pos1, curr)) :
+		(pos1.x === pos2.x && pos1.y === pos2.y);
 	}
 
 	// resizes canvas dimensions
 	const resize = () => {
-		cw = (Math.floor(innerWidth / blockSize) - 5) * blockSize;
-		ch = (Math.floor(innerHeight / blockSize) - 5) * blockSize;
+		cw = (Math.floor(innerWidth / blockSize) - 2) * blockSize;
+		ch = (Math.floor(innerHeight / blockSize) - 2) * blockSize;
 		canvas.width = cw;
 		canvas.height = ch;
 	}
@@ -174,7 +174,9 @@
 				handleDeath(snake._segments.length);
 			}
 			// update score
-			scoreDiv.textContent = snake._segments.length;
+			c.fillStyle = 'white';
+			c.font = '10px sans-serif';
+			c.fillText(`Score: ${snake._segments.length}`, 8, ch - 8);
 		}
 		setTimeout(play, refreshRate);
 	}
@@ -207,7 +209,7 @@
 
 	const handleTouchEnd = (e) => {
 		let xDiff = e.changedTouches[0].clientX - xTouch,
-		 	yDiff = e.changedTouches[0].clientY - yTouch;
+			yDiff = e.changedTouches[0].clientY - yTouch;
 
 		if (Math.abs(xDiff) > Math.abs(yDiff)) { // most significant of horizontal or vertical movement
 			// left or right
@@ -216,7 +218,7 @@
 			// up or down
 			snake.changeDirection(yDiff < 0 ? 1 : 3);
 		}
-		
+
 		// reset touch positions
 		xTouch = undefined;
 		yTouch = undefined;
@@ -255,7 +257,7 @@
 				break;
 			default:
 				break;
-		}
+				  }
 	});
 
 	// resize the canvas if the window size changes
