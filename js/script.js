@@ -14,6 +14,8 @@
 		timer, 
 		cw, // canvas width
 		ch, // canvas height
+		refreshRate = 80,
+		lastRefreshRate = refreshRate,
 		isPaused = false;
 
 	// =====================================
@@ -28,7 +30,7 @@
 	class Snake {
 		constructor(x, y, direction) {
 			this._direction = direction;
-			this._length = blockSize;
+			this._length = blockSize; // side length of a block
 			this._speed = blockSize;
 			this._moveQueue = [];
 			this._segments = [{x: x, y: y}]; // parts of the snake
@@ -142,11 +144,6 @@
 		canvas.height = ch;
 	}
 
-	// toggles between play and pause mode
-	const togglePause = () => {
-		isPaused ? play() : pause();
-	}
-
 	const handleDeath = (score) => {
 		let highscore = JSON.parse(localStorage.getItem('highscore')),
 			message = 'Your snake died. ';
@@ -162,60 +159,64 @@
 
 	// plays the game and performs checks
 	const play = () => {
-		// update the game every 80 milliseconds
-		timer = setInterval(() => {
-			// clear the canvas
-			c.clearRect(0, 0, innerWidth, innerHeight);
-			// set snake's direction to the least recent move
-			snake._direction = snake._moveQueue.pop() || snake._direction;
-			// draw in food
-			food.draw();
-			// move and draw the snake
-			snake.update();
-			let head = snake.head;
-			// if snake has eaten food
-			if (inEqualPositions(head, food.pos)) {
-				// spawn food in a snake-free square
-				do {
-					food.respawn();
-				}
-				while (inEqualPositions(food.pos, snake._segments));
-				// increase length of snake
-				snake._growth = 5;
+		// clear the canvas
+		c.clearRect(0, 0, innerWidth, innerHeight);
+		// set snake's direction to the least recent move
+		snake._direction = snake._moveQueue.pop() || snake._direction;
+		// draw in food
+		food.draw();
+		// move and draw the snake
+		snake.update();
+		let head = snake.head;
+		// if snake has eaten food
+		if (inEqualPositions(head, food.pos)) {
+			// spawn food in a snake-free square
+			do {
+				food.respawn();
 			}
-			// if snake eats itself
-			for (let i = 1, len = snake._segments.length; i < len; ++i) {
-				if (inEqualPositions(head, snake._segments[i])) {
-					handleDeath(snake._segments.length);
-					init();
-				}
+			while (inEqualPositions(food.pos, snake._segments));
+			// increase length of snake
+			snake._growth = 5;
+			// increase speed of game
+			if (refreshRate > 40) {
+				// increase the speed of the game
+				refreshRate -= 2;
+				console.log(refreshRate);
 			}
-			// if snake hits the walls
-			if (head.x < 0 || head.x >= cw || head.y < 0 || head.y >= ch) {
+		}
+		// if snake eats itself
+		for (let i = 1, len = snake._segments.length; i < len; ++i) {
+			if (inEqualPositions(head, snake._segments[i])) {
 				handleDeath(snake._segments.length);
 				init();
 			}
-			// update score
-			scoreDiv.textContent = snake._segments.length;
-		}, 80);
-		isPaused = false;
+		}
+		// if snake hits the walls
+		if (head.x < 0 || head.x >= cw || head.y < 0 || head.y >= ch) {
+			handleDeath(snake._segments.length);
+			init();
+		}
+		// update score
+		scoreDiv.textContent = snake._segments.length;
+		// update playing status
+		if (!isPaused) {
+			setTimeout(play, refreshRate);
+		}
 	}
 
-	// pauses game
-	const pause = () => {
-		clearInterval(timer);
-		isPaused = true;
+	// alternates isPaused boolean value
+	const togglePause = () => {
+		isPaused = (isPaused ? false : true);
 	}
 
 	// initialises game 
 	const init = () => {
 		resize();
+		refreshRate = 80; // set game refresh rate to default
 		snake = new Snake(Math.floor(Math.random() * (cw / blockSize)) * blockSize, 
 									 Math.floor(Math.random() * (ch / blockSize)) * blockSize, 0);
 		food = new Food(Math.floor(Math.random() * (cw / blockSize)) * blockSize, 
 								   Math.floor(Math.random() * (ch / blockSize)) * blockSize);
-		pause(); // reset timer
-		play();
 	}
 
 	// =====================================
@@ -258,4 +259,5 @@
 	// =====================================
 
 	init();
+	play();
 }());
