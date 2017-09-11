@@ -27,14 +27,14 @@
 	// 4 0 2
 	//   3
 	class Snake {
-		constructor(x, y, direction) {
-			this._direction = direction;
+		constructor(x, y) {
+			this._direction = 0; // stationary by default
 			this._length = blockSize; // side length of a block
 			this._speed = blockSize;
 			this._moveQueue = [];
 			this._segments = [{x: x, y: y}]; // parts of the snake
 			this._growth = 0; // number of segment the snake needs to grow
-			// moves the snake modifying the current head and adding a new head
+			// moves the snake by modifying the current head and adding a new head
 			this._move = [
 				// stationary
 				(segment) => {},
@@ -97,8 +97,8 @@
 			return {x: this.x, y: this.y};
 		}
 		respawn() {
-			this.x = Math.floor(Math.random() * (cw / blockSize)) * blockSize;
-			this.y = Math.floor(Math.random() * (ch / blockSize)) * blockSize;
+			this.x = randInt(0, cw / blockSize) * blockSize;
+			this.y = randInt(0, ch / blockSize) * blockSize;
 		}
 		draw() {
 			c.beginPath();
@@ -114,11 +114,9 @@
 	// if pos2 is an array of coordinates, the function will return true
 	// if any of pos2's items are equal to pos1
 	const inEqualPositions = (pos1, pos2) => {
-		if (Array.isArray(pos2)) {
-			return pos2.some(curr => inEqualPositions(pos1, curr));
-		} else {
-			return pos1.x === pos2.x && pos1.y === pos2.y;
-		}
+		return Array.isArray(pos2) ? 
+			   pos2.some(curr => inEqualPositions(pos1, curr)) :
+			   (pos1.x === pos2.x && pos1.y === pos2.y);
 	}
 
 	// resizes canvas dimensions
@@ -184,14 +182,16 @@
 		isPaused = !isPaused;
 	}
 
+	const randInt = (min, max) => {
+		return Math.floor(Math.random() * (max - min) + min);
+	}
+
 	// initialises game 
 	const init = () => {
 		resize();
 		refreshRate = 80; // set game refresh rate to default
-		snake = new Snake(Math.floor(Math.random() * (cw / blockSize)) * blockSize, 
-									 Math.floor(Math.random() * (ch / blockSize)) * blockSize, 0);
-		food = new Food(Math.floor(Math.random() * (cw / blockSize)) * blockSize, 
-								   Math.floor(Math.random() * (ch / blockSize)) * blockSize);
+		snake = new Snake(randInt(0, cw / blockSize) * blockSize, randInt(0, ch / blockSize) * blockSize);
+		food = new Food(randInt(0, cw / blockSize) * blockSize, randInt(0, ch / blockSize) * blockSize);
 	}
 
 	// =====================================
