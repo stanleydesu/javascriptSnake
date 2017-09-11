@@ -53,7 +53,7 @@
 		get head() {
 			return this._segments[0];
 		}
-		set direction(direction) {
+		changeDirection(direction) {
 			// prevent snake from going opposite direction or adding current direction to movequeue
 			if (!this._direction || (this._direction !== direction + (direction <= 2 ? 2 : -2)) && (direction !== this._moveQueue[0])) {
 				this._moveQueue.unshift(direction);
@@ -211,10 +211,10 @@
 
 		if (Math.abs(xDiff) > Math.abs(yDiff)) { // most significant of horizontal or vertical movement
 			// left or right
-			snake._direction = (xDiff < 0 ? 4 : 2);
+			snake.changeDirection(xDiff < 0 ? 4 : 2);
 		} else {
 			// up or down
-			snake._direction = (yDiff < 0 ? 1 : 3);
+			snake.changeDirection(yDiff < 0 ? 1 : 3);
 		}
 		
 		// reset touch positions
@@ -236,19 +236,19 @@
 		switch(key) {
 			case 38:
 			case 87:
-				snake.direction = 1;
+				snake.changeDirection(1);
 				break;
 			case 39:
 			case 68:
-				snake.direction = 2;
+				snake.changeDirection(2);
 				break;
 			case 40:
 			case 83:
-				snake.direction = 3;
+				snake.changeDirection(3);
 				break;
 			case 37:
 			case 65:
-				snake.direction = 4;
+				snake.changeDirection(4);
 				break;
 			case 32:
 				togglePause();
