@@ -11,7 +11,6 @@
 
 	let snake,
 		food, 
-		timer, 
 		cw, // canvas width
 		ch, // canvas height
 		refreshRate = 80,
@@ -116,9 +115,7 @@
 	// if any of pos2's items are equal to pos1
 	const inEqualPositions = (pos1, pos2) => {
 		if (Array.isArray(pos2)) {
-			return pos2.some((curr) => {
-				return inEqualPositions(pos1, curr)
-			});
+			return pos2.some(curr => inEqualPositions(pos1, curr));
 		} else {
 			return pos1.x === pos2.x && pos1.y === pos2.y;
 		}
@@ -164,21 +161,16 @@
 			// if snake has eaten food
 			if (inEqualPositions(head, food.pos)) {
 				// spawn food in a snake-free square
-				do {
-					food.respawn();
-				}
+				do { food.respawn(); }
 				while (inEqualPositions(food.pos, snake._segments));
 				// increase length of snake
 				snake._growth = 5;
 				// increase speed of game
 				refreshRate = (refreshRate > 40 ? refreshRate - 2 : refreshRate);
 			}
-			// if snake eats itself
-			if (inEqualPositions(head, snake._segments.slice(1))) {
-				handleDeath(snake._segments.length);
-			}
-			// if snake hits the walls
-			if (head.x < 0 || head.x >= cw || head.y < 0 || head.y >= ch) {
+			// if snake eats itself or hits the wall
+			if (inEqualPositions(head, snake._segments.slice(1)) ||
+				head.x < 0 || head.x >= cw || head.y < 0 || head.y >= ch) {
 				handleDeath(snake._segments.length);
 			}
 			// update score
