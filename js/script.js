@@ -13,6 +13,8 @@
 		food, 
 		cw, // canvas width
 		ch, // canvas height
+		xTouch, // (mobile) finger x position
+		yTouch, // (mobile) finger y position
 		refreshRate = 80,
 		lastRefreshRate = refreshRate,
 		isPaused = false;
@@ -186,6 +188,10 @@
 		return Math.floor(Math.random() * (max - min) + min);
 	}
 
+	const toDegrees = (radians) => {
+		return radians / Math.PI * 180;
+	}
+
 	// initialises game 
 	const init = () => {
 		resize();
@@ -194,11 +200,37 @@
 		food = new Food(randInt(0, cw / blockSize) * blockSize, randInt(0, ch / blockSize) * blockSize);
 	}
 
+	const handleTouchStart = (e) => {
+		xTouch = e.touches[0].clientX;
+		yTouch = e.touches[0].clientY;
+	}
+
+	const handleTouchEnd = (e) => {
+		let xDiff = e.changedTouches[0].clientX - xTouch,
+		 	yDiff = e.changedTouches[0].clientY - yTouch;
+
+		if (Math.abs(xDiff) > Math.abs(yDiff)) { // most significant of horizontal or vertical movement
+			// left or right
+			snake._direction = (xDiff < 0 ? 4 : 2);
+		} else {
+			// up or down
+			snake._direction = (yDiff < 0 ? 1 : 3);
+		}
+		
+		// reset touch positions
+		xTouch = undefined;
+		yTouch = undefined;
+	}
+
 	// =====================================
 	// ========== EVENT LISTENERS ==========
 	// =====================================
 
-	// handle user input for movement
+	// handle mobile touch input for movement
+	window.addEventListener('touchstart', handleTouchStart);
+	window.addEventListener('touchend', handleTouchEnd);
+
+	// handle keyboard input for movement
 	window.addEventListener('keydown', (e) => {
 		let key = e.which || e.keyCode;
 		switch(key) {
