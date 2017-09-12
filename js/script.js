@@ -6,7 +6,6 @@
 	// =====================================
 	const canvas = document.getElementById('canvas'),
 		  c = canvas.getContext('2d'),
-		  scoreDiv = document.getElementById('score'),
 		  blockSize = 15; // universal side length of a square
 
 	let snake,
@@ -16,7 +15,6 @@
 		xTouch, // (mobile) finger x position
 		yTouch, // (mobile) finger y position
 		refreshRate = 80,
-		lastRefreshRate = refreshRate,
 		isPaused = false;
 
 	// =====================================
