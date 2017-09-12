@@ -6,6 +6,7 @@
 	// =====================================
 	const canvas = document.getElementById('canvas'),
 		  c = canvas.getContext('2d'),
+		  instructionDiv = document.getElementById('instructions'),
 		  blockSize = 15; // universal side length of a square
 
 	let snake,
@@ -255,7 +256,7 @@
 				break;
 			default:
 				break;
-				  }
+		}
 	});
 
 	// resize the canvas if the window size changes
@@ -264,6 +265,9 @@
 	// =====================================
 	// ============= RUN THE GAME ==========
 	// =====================================
+
+	// display instructions
+	alert('JavaScript Snake\nWASD, arrow keys, or swipe to move');
 
 	init();
 	play();
