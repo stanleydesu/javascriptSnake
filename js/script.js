@@ -189,10 +189,6 @@
 		return Math.floor(Math.random() * (max - min) + min);
 	}
 
-	const toDegrees = (radians) => {
-		return radians / Math.PI * 180;
-	}
-
 	// initialises game 
 	const init = () => {
 		resize();
